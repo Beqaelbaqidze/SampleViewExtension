@@ -1,9 +1,13 @@
-// src/treeViewProvider.ts
 import * as vscode from "vscode";
 import { HttpClass } from "./httpclass";
 import { MyTreeItem } from "./myTreeItem";
 
-type ApiResponseItem = { name: string; id: string };
+type ApiResponseItem = {
+  name: string;
+  id: string;
+  content: string;
+  isFile: boolean;
+};
 type ApiResponse = ApiResponseItem[];
 
 export class SampleTreeViewProvider
@@ -15,11 +19,31 @@ export class SampleTreeViewProvider
   readonly onDidChangeTreeData: vscode.Event<MyTreeItem | undefined | null> =
     this._onDidChangeTreeData.event;
 
-  private httpClass = new HttpClass({
-    url: "http://office.napr.gov.ge/lr-test/bo/landreg-5/cadtree?FRAME_NAME=CADTREE.BROWSER.JSON&PRNT_ID", // Placeholder API endpoint
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
+  private apiUrl: string;
+  private httpClass: HttpClass;
+
+  constructor(apiUrl: string) {
+    this.apiUrl = apiUrl;
+    this.httpClass = new HttpClass({
+      url: this.apiUrl,
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  setApiUrl(url: string): void {
+    this.apiUrl = url;
+    this.httpClass = new HttpClass({
+      url: this.apiUrl,
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    this.refresh();
+  }
+
+  getApiUrl(): string {
+    return this.apiUrl;
+  }
 
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
@@ -31,25 +55,21 @@ export class SampleTreeViewProvider
 
   async getChildren(element?: MyTreeItem): Promise<MyTreeItem[]> {
     if (!element) {
-      // Fetch root items
       return this.fetchItems();
     } else {
-      // Fetch children of the given item
       return this.fetchItems(element.id);
     }
   }
 
   private async fetchItems(parentId?: string): Promise<MyTreeItem[]> {
-    const apiUrl = parentId
-      ? `http://office.napr.gov.ge/lr-test/bo/landreg-5/cadtree?FRAME_NAME=CADTREE.BROWSER.JSON&PRNT_ID=${parentId}`
-      : "http://office.napr.gov.ge/lr-test/bo/landreg-5/cadtree?FRAME_NAME=CADTREE.BROWSER.JSON&PRNT_ID";
+    const apiUrl = parentId ? `${this.apiUrl}=${parentId}` : this.apiUrl;
     try {
       const data = (await this.httpClass.request({
         url: apiUrl,
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
       })) as ApiResponse;
-      return data.map((item) => new MyTreeItem(item.name, item.id));
+      return data.map(
+        (item) => new MyTreeItem(item.name, item.id, item.content, item.isFile)
+      );
     } catch (error) {
       console.error("Failed to load data:", error);
       vscode.window.showErrorMessage("Failed to load data from API.");

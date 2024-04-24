@@ -9,38 +9,33 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:oracleExplorer"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "sampleTreeViewContainer",
-          "title": "Sample View",
+          "id": "oracleExplorer",
+          "title": "Oracle Explorer",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "sampleTreeViewContainer": [
+      "oracleExplorer": [
         {
           "id": "sampleTreeView",
-          "name": "Sample Tree View"
+          "name": "Oracle DB"
         }
       ]
     },
     "commands": [
       {
         "command": "extension.refreshTreeView",
-        "title": "Refresh Sample Tree View"
-      },
-      {
-        "command": "extension.setApiUrl",
-        "title": "Set API URL"
-      },
-      {
-        "command": "extension.openItem",
-        "title": "Open Item"
+        "title": "Refresh Tree View",
+        "category": "Oracle Explorer"
       }
     ]
   },
@@ -48,21 +43,15 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
-  "devDependencies": {
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^18.x",
-    "@types/vscode": "^1.88.0",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
-    "@vscode/test-electron": "^2.3.9",
-    "eslint": "^8.57.0",
-    "typescript": "^5.3.3"
-  },
   "dependencies": {
+    "oracledb": "^6.4.0",
+    "vscode": "^1.88.0",
     "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@types/node": "^18.x",
+    "typescript": "^5.3.3"
   }
 }

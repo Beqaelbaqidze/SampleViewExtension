@@ -1,28 +1,16 @@
 import * as vscode from "vscode";
 
 export class MyTreeItem extends vscode.TreeItem {
-  id: string;
-  content: string;
-  isFile: boolean;
-
   constructor(
-    label: string,
-    id: string,
-    content: string,
-    isFile: boolean,
-    collapsibleState: vscode.TreeItemCollapsibleState = vscode
-      .TreeItemCollapsibleState.Collapsed
+    public readonly label: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly contextValue: string,
+    public readonly id?: string,
+    public readonly isFile: boolean = false,
+    public readonly content?: string
   ) {
     super(label, collapsibleState);
-    this.id = id;
-    this.content = content;
-    this.isFile = isFile;
-    this.tooltip = `${label}`;
-    this.description = `ID: ${id}`;
-    this.command = {
-      command: "extension.openItem",
-      title: "Open Item",
-      arguments: [this],
-    };
+    this.tooltip = `${this.label}`;
+    this.description = this.contextValue;
   }
 }
